@@ -1,4 +1,3 @@
-
 let deck = [];
 let currentCard = null;
 let flippedThisTurn = 0;
@@ -9,9 +8,12 @@ let scores = {
   bot2: 0,
 };
 
+const players = ["player", "bot1", "bot2"];
+let currentPlayerIndex = 0;
+
 function createDeck() {
   const suits = ["hearts", "diamonds", "clubs", "spades"];
-  const values = Array.from({ length: 13 }, (_, i) => i + 2); // 2 to 14 (Ace)
+  const values = Array.from({ length: 13 }, (_, i) => i + 2);
   let newDeck = [];
 
   for (let suit of suits) {
@@ -20,7 +22,7 @@ function createDeck() {
     }
   }
 
-  return newDeck.sort(() => Math.random() - 0.5); // shuffle
+  return newDeck.sort(() => Math.random() - 0.5);
 }
 
 function getCardSymbol(card) {
@@ -43,9 +45,9 @@ function updateScores() {
   document.getElementById("bot2-score").textContent = scores.bot2;
 }
 
-function showDrinkAnimation(seconds) {
+function showDrinkAnimation(seconds, player) {
   const beer = document.getElementById("beer-animation");
-  beer.textContent = `🍺 Drinking for ${seconds} seconds...`;
+  beer.textContent = `🍺 ${player} drinks for ${seconds} seconds...`;
   beer.classList.remove("hidden");
   setTimeout(() => {
     beer.classList.add("hidden");
@@ -57,55 +59,110 @@ function drawCard() {
   return deck.pop();
 }
 
-function handleGuess(guess) {
-  const nextCard = drawCard();
+function isRed(card) {
+  return ["hearts", "diamonds"].includes(card.suit);
+}
+
+function isBlack(card) {
+  return ["clubs", "spades"].includes(card.suit);
+}
+
+function botGuess() {
+  const safeGuesses = [];
+
+  if (deck.length === 0) return "red"; // Fallback
+
+  const nextCard = deck[deck.length - 1];
+  if (nextCard.value > currentCard.value) safeGuesses.push("higher");
+  if (nextCard.value < currentCard.value) safeGuesses.push("lower");
+  if (isRed(nextCard)) safeGuesses.push("red");
+  if (isBlack(nextCard)) safeGuesses.push("black");
+
+  // Occasionally take a risk
+  if (safeGuesses.length === 0 || Math.random() < 0.2) safeGuesses.push("purple");
+
+  return safeGuesses[Math.floor(Math.random() * safeGuesses.length)];
+}
+
+function handleGuess(guess, player) {
+  let nextCard = drawCard();
   let correct = false;
 
-  switch (guess) {
-    case "higher":
-      correct = nextCard.value > currentCard.value;
-      break;
-    case "lower":
-      correct = nextCard.value < currentCard.value;
-      break;
-    case "red":
-      correct = ["hearts", "diamonds"].includes(nextCard.suit);
-      break;
-    case "black":
-      correct = ["clubs", "spades"].includes(nextCard.suit);
-      break;
-    case "purple":
-      const card2 = drawCard();
-      correct = (["hearts", "diamonds"].includes(nextCard.suit) !== ["hearts", "diamonds"].includes(card2.suit));
-      break;
+  if (guess === "purple") {
+    const card2 = drawCard();
+    correct = isRed(nextCard) !== isRed(card2);
+    currentCard = card2;
+  } else {
+    if (guess === "higher") correct = nextCard.value > currentCard.value;
+    if (guess === "lower") correct = nextCard.value < currentCard.value;
+    if (guess === "red") correct = isRed(nextCard);
+    if (guess === "black") correct = isBlack(nextCard);
+    currentCard = nextCard;
   }
 
-  currentCard = nextCard;
   showCard(currentCard);
   flippedThisTurn++;
 
   if (!correct) {
-    scores.player += flippedThisTurn;
+    scores[player] += flippedThisTurn;
     updateScores();
-    showDrinkAnimation(flippedThisTurn);
+    showDrinkAnimation(flippedThisTurn, player);
     flippedThisTurn = 0;
+    currentPlayerIndex = players.indexOf(player);
     setTimeout(startNewRound, 3000);
+  } else {
+    if (flippedThisTurn >= 3 && player !== "player") {
+      // Bot may choose to pass
+      if (Math.random() < 0.5) {
+        nextTurn();
+        return;
+      }
+    }
+    setTimeout(() => nextTurn(), 1000);
   }
 }
 
 function startNewRound() {
   deck = createDeck();
   currentCard = drawCard();
-  flippedThisTurn = 0;
   showCard(currentCard);
-  document.getElementById("status-message").textContent = "Your turn!";
+  flippedThisTurn = 0;
+
+  document.getElementById("status-message").textContent = `${players[currentPlayerIndex]}'s turn`;
+
+  if (players[currentPlayerIndex] !== "player") {
+    setTimeout(() => botPlay(), 1000);
+  }
+}
+
+function nextTurn() {
+  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  document.getElementById("status-message").textContent = `${players[currentPlayerIndex]}'s turn`;
+
+  if (players[currentPlayerIndex] === "player") {
+    // Wait for user input
+  } else {
+    setTimeout(() => botPlay(), 1000);
+  }
+}
+
+function botPlay() {
+  const guess = botGuess();
+  handleGuess(guess, players[currentPlayerIndex]);
 }
 
 document.querySelectorAll(".guess-buttons button").forEach((btn) => {
-  btn.addEventListener("click", () => handleGuess(btn.dataset.guess));
+  btn.addEventListener("click", () => {
+    if (players[currentPlayerIndex] === "player") {
+      handleGuess(btn.dataset.guess, "player");
+    }
+  });
 });
 
 window.onload = () => {
-  startNewRound();
+  deck = createDeck();
+  currentCard = drawCard();
+  showCard(currentCard);
   updateScores();
+  document.getElementById("status-message").textContent = `${players[currentPlayerIndex]}'s turn`;
 };
