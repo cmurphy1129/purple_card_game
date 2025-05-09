@@ -1,1 +1,63 @@
+body {
+  font-family: monospace;
+  background: #1a1a1a;
+  color: #fdf6e3;
+  text-align: center;
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.game-container {
+  max-width: 500px;
+  margin: auto;
+  border: 2px solid #555;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+}
+
+.card-slot {
+  font-size: 4rem;
+  margin: 1rem;
+}
+
+.guess-buttons button {
+  margin: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  cursor: pointer;
+}
+
+.guess-buttons button:hover {
+  background-color: #666;
+}
+
+.scoreboard {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+#beer-animation {
+  margin-top: 2rem;
+  font-size: 2rem;
+  animation: drink-beer 1s ease-in-out infinite;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes drink-beer {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
 
