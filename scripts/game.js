@@ -25,18 +25,23 @@ function createDeck() {
   return newDeck.sort(() => Math.random() - 0.5);
 }
 
-function getCardSymbol(card) {
-  const symbols = {
-    "hearts": "♥",
-    "diamonds": "♦",
-    "clubs": "♣",
-    "spades": "♠",
+function getCardFilename(card) {
+  const valueMap = {
+    11: "Jack",
+    12: "Queen",
+    13: "King",
+    14: "Ace"
   };
-  return `${card.value}${symbols[card.suit]}`;
+
+  const suitCap = card.suit.charAt(0).toUpperCase() + card.suit.slice(1); // "clubs" → "Clubs"
+  const valueName = valueMap[card.value] || card.value;
+
+  return `assets/cards/${suitCap} ${valueName}.png`;
 }
 
 function showCard(card) {
-  document.getElementById("current-card").textContent = getCardSymbol(card);
+  const img = document.getElementById("card-image");
+  img.src = getCardFilename(card);
 }
 
 function updateScores() {
