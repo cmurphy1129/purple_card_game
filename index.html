@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Higher Lower Card Game</title>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>🍻 Pixel Card Game</h1>
+    <div id="current-card" class="card-slot">🂠</div>
+    
+    <div class="guess-buttons">
+      <button data-guess="higher">Higher</button>
+      <button data-guess="lower">Lower</button>
+      <button data-guess="red">Red</button>
+      <button data-guess="black">Black</button>
+      <button data-guess="purple">Purple</button>
+    </div>
+
+    <div id="status-message"></div>
+
+    <div class="scoreboard">
+      <p>You: <span id="player-score">0</span></p>
+      <p>Bot 1: <span id="bot1-score">0</span></p>
+      <p>Bot 2: <span id="bot2-score">0</span></p>
+    </div>
+
+    <div id="beer-animation" class="hidden">🍺 Drinking...</div>
+  </div>
+
+  <script src="scripts/game.js"></script>
+</body>
+</html>
 
